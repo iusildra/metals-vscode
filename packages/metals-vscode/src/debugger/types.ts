@@ -10,6 +10,7 @@ export interface OldScalaMainData {
 
 export interface ExtendedScalaMainData extends OldScalaMainData {
   shellCommand: string;
+  stepFilters: string[];
 }
 
 export type ScalaMainData = OldScalaMainData | ExtendedScalaMainData;

@@ -129,10 +129,26 @@ export async function start(
   }
 }
 
+function getDebugFilters(): string[] {
+  const config = vscode.workspace.getConfiguration("metals.debug");
+  let filters = [];
+  if (config.get<boolean>("runtimeStepFilter")) filters.push("runtime");
+  if (config.get<boolean>("scalaStepFilter")) filters.push("unpickler");
+  if (config.get<boolean>("classLoadingStepFilter"))
+    filters.push("classLoader");
+  console.log("filters", filters);
+  return filters;
+}
+
+interface ScalaDebugConfiguration extends vscode.DebugConfiguration {
+  stepFilters: string[];
+}
+
 async function debug(
   noDebug: boolean,
   debugParams: DebugDiscoveryParams | ScalaCodeLensesParams
 ): Promise<boolean> {
+  const stepFilters = getDebugFilters();
   await commands.executeCommand("workbench.action.files.save");
   const response = await vscode.commands.executeCommand<DebugSession>(
     ServerCommands.DebugAdapterStart,
@@ -145,11 +161,12 @@ async function debug(
 
   const port = debugServerFromUri(response.uri).port;
 
-  const configuration: vscode.DebugConfiguration = {
+  const configuration: ScalaDebugConfiguration = {
     type: configurationType,
     name: response.name,
     noDebug: noDebug,
     request: "launch",
+    stepFilters: stepFilters,
     debugServer: port, // note: MUST be a number. vscode magic - automatically connects to the server
   };
   commands.executeCommand("workbench.panel.repl.view.focus");
@@ -170,10 +187,8 @@ class ScalaMainConfigProvider implements vscode.DebugConfigurationProvider {
         runType: RunType.RunOrTestFile,
       };
       await startDiscovery(debugConfiguration.noDebug, args);
-      return debugConfiguration;
-    } else {
-      return debugConfiguration;
     }
+    return debugConfiguration;
   }
 }
 

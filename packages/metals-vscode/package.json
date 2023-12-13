@@ -218,6 +218,21 @@
     "configuration": {
       "title": "Metals",
       "properties": {
+        "metals.debug.runtimeStepFilter": {
+          "type": "boolean",
+          "default": true,
+          "markdownDescription": "Skip runtime steps (boxing, lazy initialization, etc.) when debugging Scala code."
+        },
+        "metals.debug.scalaStepFilter": {
+          "type": "boolean",
+          "default": true,
+          "markdownDescription": "Skip ??? (getter, exported, etc.) when debugging Scala code."
+        },
+        "metals.debug.classLoadingStepFilter": {
+          "type": "boolean",
+          "default": true,
+          "markdownDescription": "Skip low-level class loading (new, instanceof...) when debugging Scala code."
+        },
         "metals.serverVersion": {
           "type": "string",
           "default": "1.2.0",
